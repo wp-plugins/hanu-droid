@@ -38,8 +38,13 @@ $post_table_name = $wpdb->prefix.'posts';
 $post_meta_table_name = $wpdb->prefix.'postmeta';
 $comments_table_name = $wpdb->prefix.'comments';
 
-$query = "SELECT ID, post_date, post_modified FROM $post_table_name WHERE post_modified >= '$mod_time' AND post_status = 'publish' ".
-			"ORDER BY post_date DESC LIMIT 50";
+$maxPost = get_option("HanuDroid_MaxPost");
+if($maxPost == 0){
+	$maxPost = 30;
+}
+
+$query = "SELECT ID, post_date, post_modified FROM $post_table_name WHERE post_modified_gmt >= '$mod_time' AND post_status = 'publish' ".
+			"AND post_type = 'post' ORDER BY post_date_gmt DESC LIMIT $maxPost";
 $result = mysql_query($query, $linkID) or die("Records not found.");
 
 $xml_output = "<?xml version=\"1.0\"?>\n";

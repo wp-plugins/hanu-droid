@@ -3,7 +3,7 @@
 Plugin Name: Hanu-Droid
 Plugin URI: http://hanu-droid.varunverma.org/wordpress-plugin/
 Description: Wordpress plugin to create Android apps from your word press blog.
-Version: 1.0
+Version: 1.1
 Author: Varun Verma
 Author URI: http://varunverma.org
 License: GPL2
@@ -32,13 +32,14 @@ function hanudroid_install(){
 	$terms = $wpdb->prefix.'terms';
 	$view_name = $wpdb->prefix.'hanu_term_data';
 
-	$sql = "CREATE VIEW $view_name AS SELECT a.object_id  AS object_id, b.taxonomy as taxonomy, c.name as name 
+	$sql = "CREATE OR REPLACE VIEW $view_name AS SELECT a.object_id  AS object_id, b.taxonomy as taxonomy, c.name as name 
 		FROM $term_relationship AS a, $term_taxonomy as b, $terms AS c 
 		WHERE a.term_taxonomy_id = b.term_taxonomy_id AND b.term_id = c.term_id";
 
 	$result = mysql_query($sql, $linkID) or die("Error while Installing, Please try again.");
 	if($result){
-		add_option('HanuDroid_Version', '1.0');
+		add_option('HanuDroid_Version', '1.1');
+		add_option('HanuDroid_MaxPost', '30');
 	}
 	else{
 	}
@@ -64,6 +65,7 @@ function hanudroid_uninstall(){
 	$result = mysql_query($sql, $linkID) or die("Error while deactivating the Plugin!");
 	if($result){
 		delete_option('HanuDroid_Version');
+		delete_option('HanuDroid_MaxPost');
 	}
 	else{
 	}

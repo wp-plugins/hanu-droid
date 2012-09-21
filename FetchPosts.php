@@ -40,7 +40,12 @@ $comments_meta_table_name = $wpdb->prefix.'commentsmeta';
 $user_table_name = $wpdb->prefix.'users';
 $terms_view_name = $wpdb->prefix.'hanu_term_data';
 
-$query = "SELECT * FROM $post_table_name WHERE ID in ($post_ids) AND post_status = 'publish'";
+$maxPost = get_option("HanuDroid_MaxPost");
+if($maxPost == 0){
+	$maxPost = 30;
+}
+
+$query = "SELECT * FROM $post_table_name WHERE ID in ($post_ids) AND post_status = 'publish' ORDER BY post_date_gmt DESC LIMIT $maxPost";
 $result = mysql_query($query, $linkID) or die("Records not found.");
 
 $xml_output = "<?xml version=\"1.0\"?>\n";
@@ -66,13 +71,13 @@ for($x = 0 ; $x < mysql_num_rows($result) ; $x++){
 	
     $xml_output .= 'Author="'.$user_name_result_row['display_name'].'"'."\n";
 	$xml_output .= 'ModifiedDate="'.$row['post_modified'].'"'."\n";
-	$xml_output .= 'Title="'.$row['post_title'].'"'."\n";
 	$xml_output .= ">\n";
+	$postTitle = strip_tags($row['post_title']);
+	$xml_output .= '<PostTitle>'.$postTitle."</PostTitle>\n";
 	$xml_output .= "</PostData>\n";
 
 	// Content may have HTML tags !
-	$post_content = "<![CDATA[".$row['post_content']."]]>";
-	//$post_content = "<![CDATA[".nl2br($row['post_content'])."]]>";
+	$post_content = "<![CDATA[".nl2br($row['post_content'])."]]>";
 	$xml_output .= '<PostContent>'.$post_content."</PostContent>"."\n";
 	
 	// Post Meta Data
@@ -112,10 +117,12 @@ for($x = 0 ; $x < mysql_num_rows($result) ; $x++){
 		$xml_output .= "Author=\"".$comments_data_row['comment_author'].'"'."\n";
 		$xml_output .= "AuthorEmail=\"".$comments_data_row['comment_author_email'].'"'."\n";
 		$xml_output .= "CommentDate=\"".$comments_data_row['comment_date'].'"'."\n";
-		$comment_content = strip_tags($comments_data_row['comment_content']);
-		$xml_output .= "CommentContent=\"".$comment_content.'"'."\n";
 		$xml_output .= "CommentParent=\"".$comments_data_row['comment_parent'].'"'."\n";
-		$xml_output .= ">\n</CommentsDataRow>\n";
+		$xml_output .= ">\n";
+		$comment_content = strip_tags($comments_data_row['comment_content']);
+		$xml_output .= "<CommentContent>".$comment_content."</CommentContent>\n";
+		
+		$xml_output .= "\n</CommentsDataRow>\n";
 	}
 	$xml_output .= "</CommentsData>";
 	
@@ -132,8 +139,10 @@ for($x = 0 ; $x < mysql_num_rows($result) ; $x++){
 		$xml_output .= "<TermsDataRow \n";
 		$xml_output .= "PostId=\"".$term_data_row['object_id'].'"'."\n";
 		$xml_output .= "Taxonomy=\"".$term_data_row['taxonomy'].'"'."\n";
-		$xml_output .= "Name=\"".$term_data_row['name'].'"'."\n";
-		$xml_output .= ">\n</TermsDataRow>\n";
+		$xml_output .= ">\n";
+		$xml_output .= "<TermName>".$term_data_row['name']."</TermName>\n";
+		$xml_output .= "\n</TermsDataRow>\n";
+		
 	}
 	$xml_output .= "</TermsData>";
 
