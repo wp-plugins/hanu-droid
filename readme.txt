@@ -24,6 +24,9 @@ The installation is very easy. Just follow the below steps:
 
 == Changelog ==
 
+= 1.2 =
+Added category filter
+
 = 1.1 =
 Fixed bugs.
 

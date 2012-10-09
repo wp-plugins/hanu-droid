@@ -37,64 +37,105 @@ if($mod_time ==  ""){
 $post_table_name = $wpdb->prefix.'posts';
 $post_meta_table_name = $wpdb->prefix.'postmeta';
 $comments_table_name = $wpdb->prefix.'comments';
+$term_data_table = $wpdb->prefix.'hanu_term_data';
 
 $maxPost = get_option("HanuDroid_MaxPost");
 if($maxPost == 0){
 	$maxPost = 30;
 }
 
-$query = "SELECT ID, post_date, post_modified FROM $post_table_name WHERE post_modified_gmt >= '$mod_time' AND post_status = 'publish' ".
-			"AND post_type = 'post' ORDER BY post_date_gmt DESC LIMIT $maxPost";
-$result = mysql_query($query, $linkID) or die("Records not found.");
-
+global $xml_output;
 $xml_output = "<?xml version=\"1.0\"?>\n";
 
 $xml_output .= "<PostArtificats>\n";
 
-for($x = 0 ; $x < mysql_num_rows($result) ; $x++){
+$categories = get_option("HanuDroid_Categories");
 
-	$row = mysql_fetch_assoc($result);
-    $id = $row['ID'];
+if(strcmp($categories,"ALL") == 0 || strcmp($categories,"") == 0){
+	// Select All
+	$query = "SELECT ID, post_date, post_modified FROM $post_table_name WHERE post_modified_gmt >= '$mod_time' AND post_status = 'publish' AND post_type = 'post' ORDER BY post_date_gmt DESC LIMIT $maxPost";
+	
+	$result = mysql_query($query, $linkID) or die("Records not found.");
+	
+	prepareXML($result);
+	
+}
+else{
 
-    $xml_output .= "<PostArtifcatData \n";
-    $xml_output .= 'Id="'.$id.'"'."\n";
-	$xml_output .= 'PublishDate="'.$row['post_date'].'"'."\n";
-	$xml_output .= 'ModifiedDate="'.$row['post_modified'].'"'."\n";
-
-	// Post Meta Data
-	$post_meta_query = "SELECT meta_value FROM $post_meta_table_name WHERE post_id = '$id' AND meta_key = 'ratings_average'";
-	$post_meta_result = mysql_query($post_meta_query, $linkID);
-	$xml_output .= "AverageRating=\"";
-	$rating = "0";
-	if($post_meta_result){
-		// If we have something
-		for($y = 0 ; $y < mysql_num_rows($post_meta_result) ; $y++){
-			$post_meta_row = mysql_fetch_assoc($post_meta_result);
-			$rating = $post_meta_row['meta_value'];
-		}
+	$cat = split(",",$categories);
+	$cat_list = "";
+	foreach($cat as $category){
+		$cat_list = $cat_list."'".$category."',";
 	}
+	$cat_list = substr($cat_list,0,-1);
 	
-	$xml_output .= $rating.'"'."\n";
+	$query = "SELECT ID, post_date, post_modified FROM $post_table_name INNER JOIN $term_data_table
+		ON $post_table_name.ID = $term_data_table.object_id
+		WHERE post_modified_gmt >= '$mod_time' AND 
+			  post_status = 'publish' AND 
+			  post_type = 'post' AND 
+			  $term_data_table.taxonomy = 'category' AND 
+			  $term_data_table.name IN ($cat_list) ORDER BY post_date_gmt DESC LIMIT $maxPost";
+	
+	$result = mysql_query($query, $linkID) or die("Records not found.");
+	
+	prepareXML($result);
 
-	// Post Comments Data.
-	$comments_query = "SELECT comment_date FROM $comments_table_name WHERE comment_post_ID = '$id' and comment_approved = '1'
-						ORDER BY comment_date_gmt desc LIMIT 1";
-	$comments_result = mysql_query($comments_query, $linkID);	
-	$xml_output .= "CommentDate=\"";
-	for($y = 0 ; $y < mysql_num_rows($comments_result) ; $y++){
-	
-		$comments_data_row = mysql_fetch_assoc($comments_result);
-		$xml_output .= $comments_data_row['comment_date'];
-	}
-	$xml_output .= '"'."\n";
-	
-	$xml_output .= ">\n";
-	$xml_output .= "</PostArtifcatData>\n";
-	
 }
 
 $xml_output .= "</PostArtificats>\n";
 
 echo $xml_output;
+
+function prepareXML($result){
+	
+	global $xml_output;
+	global $linkID;
+	global $post_meta_table_name;
+	global $comments_table_name;
+	
+	for($x = 0 ; $x < mysql_num_rows($result) ; $x++){
+	
+		$row = mysql_fetch_assoc($result);
+		$id = $row['ID'];
+
+		$xml_output .= "<PostArtifcatData \n";
+		$xml_output .= 'Id="'.$id.'"'."\n";
+		$xml_output .= 'PublishDate="'.$row['post_date'].'"'."\n";
+		$xml_output .= 'ModifiedDate="'.$row['post_modified'].'"'."\n";
+
+		// Post Meta Data
+		$post_meta_query = "SELECT meta_value FROM $post_meta_table_name WHERE post_id = '$id' AND meta_key = 'ratings_average'";
+		$post_meta_result = mysql_query($post_meta_query, $linkID);
+		$xml_output .= "AverageRating=\"";
+		$rating = "0";
+		if($post_meta_result){
+			// If we have something
+			for($y = 0 ; $y < mysql_num_rows($post_meta_result) ; $y++){
+				$post_meta_row = mysql_fetch_assoc($post_meta_result);
+				$rating = $post_meta_row['meta_value'];
+			}
+		}
+	
+		$xml_output .= $rating.'"'."\n";
+	
+		// Post Comments Data.
+		$comments_query = "SELECT comment_date FROM $comments_table_name WHERE comment_post_ID = '$id' and comment_approved = '1'
+							ORDER BY comment_date_gmt desc LIMIT 1";
+		$comments_result = mysql_query($comments_query, $linkID);	
+		$xml_output .= "CommentDate=\"";
+		for($y = 0 ; $y < mysql_num_rows($comments_result) ; $y++){
+		
+			$comments_data_row = mysql_fetch_assoc($comments_result);
+			$xml_output .= $comments_data_row['comment_date'];
+		}
+		$xml_output .= '"'."\n";
+		
+		$xml_output .= ">\n";
+		$xml_output .= "</PostArtifcatData>\n";
+		
+	}
+
+}
 
 ?>
