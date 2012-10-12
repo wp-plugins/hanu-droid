@@ -1,9 +1,9 @@
 <?php
 /*
 Plugin Name: Hanu-Droid
-Plugin URI: http://hanu-droid.varunverma.org/wordpress-plugin/
+Plugin URI: http://hanu-droid.varunverma.org/hanu-droid-wordpress-plugin/
 Description: Wordpress plugin to create Android apps from your word press blog.
-Version: 1.4
+Version: 1.4.1
 Author: Varun Verma
 Author URI: http://varunverma.org
 License: GPL2

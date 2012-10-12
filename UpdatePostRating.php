@@ -63,7 +63,7 @@ function add_user_rating($postId, $rating){
 	update_post_meta($postId, "ratings_score", $ratings_score);
 	update_post_meta($postId, "ratings_average", $ratings_average);
 	
-	$post_rating = array('ratings_users' => $ratings_users, 'ratings_score' => $ratings_score, 'ratings_average' => $ratings_average);
+	$post_rating = array('PostId' =>$postId, 'ratings_users' => $ratings_users, 'ratings_score' => $ratings_score, 'ratings_average' => $ratings_average);
 	return $post_rating;
 }
 

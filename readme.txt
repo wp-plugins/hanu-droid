@@ -24,6 +24,9 @@ The installation is very easy. Just follow the below steps:
 
 == Changelog ==
 
+= 1.4.1 =
+Fixed bugs - Error while synchronizing post ratings from mobile
+
 = 1.4 =
 Added support to rate posts via mobile in offline mode.
 
