@@ -24,6 +24,9 @@ The installation is very easy. Just follow the below steps:
 
 == Changelog ==
 
+= 1.5 =
+Fixed bugs - Sync post meta via push notifications.
+
 = 1.4.1 =
 Fixed bugs - Error while synchronizing post ratings from mobile
 
