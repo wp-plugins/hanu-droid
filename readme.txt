@@ -2,7 +2,7 @@
 Contributors: mastram
 Tags: Hanu-Droid, Android, Native Mobile App
 Requires at least: 3.0
-Tested up to: 3.4.2
+Tested up to: 3.5.1
 
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -23,6 +23,9 @@ The installation is very easy. Just follow the below steps:
 2. Activate the plugin through the 'Plugins' menu in WordPress
 
 == Changelog ==
+
+= 1.5.1 =
+New feature - Option to send a notification message
 
 = 1.5 =
 Fixed bugs - Sync post meta via push notifications.
