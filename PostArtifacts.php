@@ -28,10 +28,21 @@ $database = DB_NAME;
 $linkID = mysql_connect($host, $user, $pass) or die("Could not connect to host.");
 mysql_select_db($database, $linkID) or die("Could not find database.");
 
-$mod_time = $_POST[modified_time];
+$mod_time = $_POST['modified_time'];
+$sync_params = $_POST['sync_params'];
+$sync_params = stripslashes($sync_params);
 
 if($mod_time ==  ""){
     die("No input!");
+}
+
+if($sync_params == ""){
+	// Nothing to do.
+}
+else{
+	//
+	$syncParams = json_decode($sync_params,true);
+	$syncCategories = $syncParams['category'];
 }
 
 $post_table_name = $wpdb->prefix.'posts';
@@ -49,7 +60,12 @@ $xml_output = "<?xml version=\"1.0\"?>\n";
 
 $xml_output .= "<PostArtificats>\n";
 
-$categories = get_option("HanuDroid_Categories");
+if($syncCategories == ""){
+	$categories = get_option("HanuDroid_Categories");
+}
+else{
+	$categories = $syncCategories;
+}
 
 if(strcmp($categories,"ALL") == 0 || strcmp($categories,"") == 0){
 	// Select All

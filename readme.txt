@@ -24,6 +24,10 @@ The installation is very easy. Just follow the below steps:
 
 == Changelog ==
 
+= 1.5.2 =
+Added feature to request sync of specific categories - this is controlled from the mobile.
+Removed the Option to send a notification message - The notification message is build automatically now.
+
 = 1.5.1 =
 New feature - Option to send a notification message
 
